@@ -192,11 +192,12 @@ button {
   position: absolute;
   bottom: 2rem;
   left: 2rem;
-  font-size: 0.75rem;
-  color: var(--accent-color);
-  opacity: 0.3;
+  font-size: 0.72rem;
+  color: #000;
+  opacity: 0.25;
   line-height: 1.4;
-  pointer-events: none; /* Don't block clicks */
+  pointer-events: none;
+  z-index: 5;
 }
 
 .legend-item {

@@ -21,10 +21,44 @@ const alphabetGrid = document.getElementById('alphabet-grid');
 
 // State
 let pressStartTime = 0;
-let lastReleaseTime = Date.now();
 let spaceTimer = null;
-let currentMorse = ""; // Store original Morse code
-let originalDisplay = ""; // Tracking display content
+let wordTimer = null;
+let originalDisplay = "";
+
+// Audio context for beep
+let audioCtx = null;
+let oscillator = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playBeep() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+}
+
+function stopBeep() {
+  if (oscillator) {
+    oscillator.stop();
+    oscillator = null;
+  }
+}
 
 // --- Morse Logic ---
 
@@ -38,24 +72,28 @@ function handlePressStart(e) {
   if (e) e.preventDefault();
   pressStartTime = Date.now();
   if (spaceTimer) clearTimeout(spaceTimer);
+  if (wordTimer) clearTimeout(wordTimer);
 
-  // Visual & Haptic
+  // Visual & Haptic & Audio
   morsePad.classList.add('active');
   if (navigator.vibrate) navigator.vibrate(20);
+  playBeep();
 }
 
 function handlePressEnd(e) {
   if (e) e.preventDefault();
   const duration = Date.now() - pressStartTime;
+  stopBeep();
 
-  if (duration < 200) {
-    addMorse('.');
-  } else {
-    addMorse('-');
+  if (duration > 0) {
+    if (duration < 200) {
+      addMorse('.');
+    } else {
+      addMorse('-');
+    }
   }
 
   morsePad.classList.remove('active');
-  lastReleaseTime = Date.now();
 
   // Set timer to add space after 500ms of inactivity
   spaceTimer = setTimeout(() => {
@@ -63,10 +101,10 @@ function handlePressEnd(e) {
   }, 500);
 
   wordTimer = setTimeout(() => {
-    // Replace last space with a word separator
+    // Replace last space with a word separator (2 spaces)
     if (output.value.endsWith(' ')) {
-      output.value = output.value.slice(0, -1) + '    ';
-      originalMorse = output.value;
+      output.value = output.value.slice(0, -1) + '  ';
+      originalDisplay = output.value;
     }
   }, 1200);
 }
@@ -74,16 +112,15 @@ function handlePressEnd(e) {
 // --- Translation ---
 
 function translateMorse(morseText) {
-  // Split by spaces (assuming each space separates characters as per user spec)
-  return morseText
-    .trim()
-    .split(/\s+/)
-    .map(symbol => {
-      // Normalize dots
-      const normalized = symbol.replace(/\./g, '.');
-      return MORSE_MAP[normalized] || '?';
-    })
-    .join('');
+  // Split into words by 4 spaces
+  const words = morseText.trim().split('    ');
+
+  return words.map(word => {
+    // Split each word into characters by single space
+    return word.split(/\s+/)
+      .map(symbol => MORSE_MAP[symbol] || '?')
+      .join('');
+  }).join(' ');
 }
 
 function handleTranslationStart() {

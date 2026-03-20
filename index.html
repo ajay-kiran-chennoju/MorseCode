@@ -3,48 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MorseCode v2 | Minimalist Tactile Tool</title>
-    <meta name="description" content="A tactile, ultra-lightweight Morse code input and translation tool.">
+    <title>MorseCode | Minimalist Tool</title>
+    <meta name="description" content="A minimal, offline-ready Morse code input and translation tool.">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container">
         <!-- Top Section -->
         <header class="top-section">
-            <div class="text-display-container">
-                <textarea id="output" readonly placeholder="Tap the red button to start..."></textarea>
-                <button id="help-btn" class="guide-btn" title="Morse Guide" aria-label="Open Morse Guide">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                </button>
-            </div>
-            
-            <div class="button-row">
-                <button id="copy-btn" class="alt-btn" title="Copy to Clipboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    <span>Copy</span>
-                </button>
-                <button id="translate-btn" class="alt-btn" title="Hold to Translate">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"></path></svg>
-                    <span>Hold to ↔</span>
-                </button>
-                <button id="clear-btn" class="alt-btn" title="Clear All">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>
+            <div class="text-display-wrapper">
+                <textarea id="output" readonly placeholder="Morse input will appear here..."></textarea>
+                <div class="action-bar">
+                    <button id="copy-btn" title="Copy to Clipboard" aria-label="Copy to Clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                    <button id="translate-btn" title="Hold to Translate" aria-label="Hold to Translate">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"></path></svg>
+                    </button>
+                    <button id="clear-btn" title="Clear All" aria-label="Clear All">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
             </div>
         </header>
 
         <!-- Center Section -->
         <main class="center-section">
-            <button id="morse-pad" class="morse-button" aria-label="Morse Input Pad">
-                <div class="inner-ring"></div>
-                <span class="press-label">PRESS</span>
+            <button id="morse-pad" class="morse-button">
+                <div class="inner-circle"></div>
             </button>
         </main>
 
-        <!-- Status Indicator -->
-        <footer class="footer-info">
-            <span id="status-text">Letter gap: 500ms • Word gap: 1200ms</span>
-        </footer>
+        <!-- Bottom Right -->
+        <button id="help-btn" class="help-toggle" aria-label="Open Help">?</button>
     </div>
 
     <!-- Help Modal -->
@@ -53,7 +44,7 @@
             <span class="close-modal">&times;</span>
             <h2 class="modal-header">Morse Alphabet</h2>
             <div class="morse-grid" id="alphabet-grid">
-                <!-- Populated via JS -->
+                <!-- JavaScript will populate this -->
             </div>
         </div>
     </div>

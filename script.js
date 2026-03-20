@@ -1,14 +1,14 @@
 const MORSE_MAP = {
-  "•-": "A", "-...": "B", "-.-.": "C", "-..": "D", "•": "E", "..-.": "F",
+  ".-": "A", "-...": "B", "-.-.": "C", "-..": "D", ".": "E", "..-.": "F",
   "--.": "G", "....": "H", "..": "I", ".---": "J", "-.-": "K", ".-..": "L",
   "--": "M", "-.": "N", "---": "O", ".--.": "P", "--.-": "Q", ".-.": "R",
   "...": "S", "-": "T", "..-": "U", "...-": "V", ".--": "W", "-..-": "X",
-  "-.--": "Y", "--..": "Z", "•----": "1", "••---": "2", "•••--": "3",
-  "••••-": "4", "•••••": "5", "-••••": "6", "--•••": "7", "---••": "8",
-  "----•": "9", "-----": "0"
+  "-.--": "Y", "--..": "Z", ".----": "1", "..---": "2", "...--": "3",
+  "....-": "4", ".....": "5", "-....": "6", "--...": "7", "---..": "8",
+  "----.": "9", "-----": "0"
 };
 
-// Elements
+// UI Elements
 const output = document.getElementById('output');
 const morsePad = document.getElementById('morse-pad');
 const copyBtn = document.getElementById('copy-btn');
@@ -19,145 +19,184 @@ const helpModal = document.getElementById('help-modal');
 const closeModal = document.querySelector('.close-modal');
 const alphabetGrid = document.getElementById('alphabet-grid');
 
-// State
+// Input state
 let pressStartTime = 0;
 let lastReleaseTime = Date.now();
-let spaceTimer = null;
-let currentMorse = ""; // Store original Morse code
-let originalDisplay = ""; // Tracking display content
+let letterTimer = null;
+let wordTimer = null;
+let originalMorse = ""; // We'll store what's currently in the textarea (as Morse)
 
-// --- Morse Logic ---
+// Audio context for beep
+let audioCtx = null;
+let oscillator = null;
 
-function addMorse(char) {
-  output.value += char;
-  output.scrollTop = output.scrollHeight;
-  originalDisplay = output.value;
+// --- Audio Initialization ---
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
 }
 
-function handlePressStart(e) {
-  if (e) e.preventDefault();
-  pressStartTime = Date.now();
-  if (spaceTimer) clearTimeout(spaceTimer);
+function playBeep() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   
-  // Visual & Haptic
+  oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+  
+  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Low volume
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  oscillator.start();
+}
+
+function stopBeep() {
+  if (oscillator) {
+    oscillator.stop();
+    oscillator = null;
+  }
+}
+
+// --- Logic Functions ---
+
+function addSymbol(symbol) {
+  output.value += symbol;
+  output.scrollTop = output.scrollHeight;
+  originalMorse = output.value;
+}
+
+function startInput(e) {
+  if (e) e.preventDefault(); // Prevent double triggering and zoom on mobile
+  
+  pressStartTime = Date.now();
+  clearTimeout(letterTimer);
+  clearTimeout(wordTimer);
+  
   morsePad.classList.add('active');
   if (navigator.vibrate) navigator.vibrate(20);
+  
+  playBeep();
 }
 
-function handlePressEnd(e) {
+function endInput(e) {
   if (e) e.preventDefault();
+  
   const duration = Date.now() - pressStartTime;
-  
-  if (duration < 200) {
-    addMorse('•');
-  } else {
-    addMorse('-');
-  }
-  
+  stopBeep();
   morsePad.classList.remove('active');
-  lastReleaseTime = Date.now();
   
-  // Set timer to add space after 500ms of inactivity
-  spaceTimer = setTimeout(() => {
-    addMorse(' ');
-  }, 500);
-}
-
-// --- Translation ---
-
-function translateMorse(morseText) {
-  // Split by spaces (assuming each space separates characters as per user spec)
-  return morseText
-    .trim()
-    .split(/\s+/)
-    .map(symbol => {
-      // Normalize dots
-      const normalized = symbol.replace(/\./g, '•');
-      return MORSE_MAP[normalized] || '?';
-    })
-    .join('');
-}
-
-function handleTranslationStart() {
-  if (!output.value) return;
-  originalDisplay = output.value;
-  const translated = translateMorse(output.value);
-  output.value = translated;
-  translateBtn.classList.add('holding');
-}
-
-function handleTranslationEnd() {
-  output.value = originalDisplay;
-  translateBtn.classList.remove('holding');
-}
-
-// --- Copy & Clear ---
-
-async function copyToClipboard() {
-  try {
-    await navigator.clipboard.writeText(output.value);
-    const originalSvg = copyBtn.innerHTML;
-    copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-    setTimeout(() => copyBtn.innerHTML = originalSvg, 1500);
-  } catch (err) {
-    console.error('Failed to copy: ', err);
+  if (duration > 0) {
+    if (duration < 200) {
+      addSymbol('•');
+    } else {
+      addSymbol('-');
+    }
   }
+
+  // Set timers for gaps
+  letterTimer = setTimeout(() => {
+    addSymbol(' ');
+  }, 500);
+
+  wordTimer = setTimeout(() => {
+    // Replace last space with a word separator
+    if (output.value.endsWith(' ')) {
+      output.value = output.value.slice(0, -1) + ' / ';
+      originalMorse = output.value;
+    }
+  }, 1200);
 }
 
-function clearOutput() {
-  output.value = "";
-  originalDisplay = "";
+// --- Translation Engine ---
+
+function decodeMorse(morseStr) {
+  // Normalize symbols: • -> .
+  const normalized = morseStr.replace(/•/g, '.');
+  
+  // Split into words by /
+  const words = normalized.trim().split(/\s\/\s/);
+  
+  return words.map(word => {
+    // Split word into letters by spaces
+    const letters = word.split(/\s+/);
+    return letters.map(letter => MORSE_MAP[letter] || '?').join('');
+  }).join(' ');
 }
 
-// --- UI Helpers ---
-
-function populateAlphabet() {
-  Object.entries(MORSE_MAP)
-    .sort((a, b) => a[1].localeCompare(b[1]))
-    .forEach(([morse, char]) => {
-      const item = document.createElement('div');
-      item.className = 'morse-item';
-      item.innerHTML = `<span class="morse-key">${char}</span><span class="morse-val">${morse}</span>`;
-      alphabetGrid.appendChild(item);
-    });
+function handleTranslationToggle(isHolding) {
+  if (isHolding) {
+    if (!output.value) return;
+    translateBtn.classList.add('holding');
+    const english = decodeMorse(output.value);
+    output.value = english;
+  } else {
+    translateBtn.classList.remove('holding');
+    output.value = originalMorse;
+  }
 }
 
 // --- Event Listeners ---
 
-// Morse Pad
-morsePad.addEventListener('mousedown', handlePressStart);
-morsePad.addEventListener('mouseup', handlePressEnd);
-morsePad.addEventListener('touchstart', handlePressStart);
-morsePad.addEventListener('touchend', handlePressEnd);
+// Input pad (Multi-touch support)
+const inputEvents = [
+  ['mousedown', startInput], ['mouseup', endInput], ['mouseleave', endInput],
+  ['touchstart', startInput], ['touchend', endInput]
+];
+inputEvents.forEach(([ev, fn]) => morsePad.addEventListener(ev, fn, { passive: false }));
 
-// Copy & Clear
-copyBtn.addEventListener('click', copyToClipboard);
-clearBtn.addEventListener('click', clearOutput);
+// Action Buttons
+copyBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(output.value);
+    const span = copyBtn.querySelector('span');
+    const originalText = span.innerText;
+    span.innerText = "Copied!";
+    setTimeout(() => span.innerText = originalText, 1500);
+  } catch (err) { console.error(err); }
+});
 
-// Translate Toggle (Hold)
-translateBtn.addEventListener('mousedown', handleTranslationStart);
-translateBtn.addEventListener('mouseup', handleTranslationEnd);
-translateBtn.addEventListener('mouseleave', handleTranslationEnd);
-translateBtn.addEventListener('touchstart', handleTranslationStart);
-translateBtn.addEventListener('touchend', handleTranslationEnd);
+clearBtn.addEventListener('click', () => {
+  output.value = "";
+  originalMorse = "";
+});
 
-// Help Modal
+// Translation Toggle
+const transEvents = [
+  ['mousedown', () => handleTranslationToggle(true)],
+  ['mouseup', () => handleTranslationToggle(false)],
+  ['mouseleave', () => handleTranslationToggle(false)],
+  ['touchstart', () => handleTranslationToggle(true)],
+  ['touchend', () => handleTranslationToggle(false)]
+];
+transEvents.forEach(([ev, fn]) => translateBtn.addEventListener(ev, fn, { passive: false }));
+
+// Modal
 helpBtn.addEventListener('click', () => {
   helpModal.style.display = 'block';
   setTimeout(() => helpModal.classList.add('show'), 10);
 });
 
-closeModal.addEventListener('click', () => {
+const closeHelp = () => {
   helpModal.classList.remove('show');
   setTimeout(() => helpModal.style.display = 'none', 300);
-});
+};
+closeModal.addEventListener('click', closeHelp);
+window.addEventListener('click', (e) => { if (e.target === helpModal) closeHelp(); });
 
-window.addEventListener('click', (e) => {
-  if (e.target === helpModal) {
-    helpModal.classList.remove('show');
-    setTimeout(() => helpModal.style.display = 'none', 300);
-  }
-});
-
-// Initialization
-populateAlphabet();
+// Init alphabet
+function renderAlphabet() {
+  Object.entries(MORSE_MAP).sort().forEach(([morse, key]) => {
+    // Format morse back to • format
+    const displayMorse = morse.replace(/\./g, '•');
+    const div = document.createElement('div');
+    div.className = 'morse-item';
+    div.innerHTML = `<span class="morse-key">${key}</span><span class="morse-val">${displayMorse}</span>`;
+    alphabetGrid.appendChild(div);
+  });
+}
+renderAlphabet();

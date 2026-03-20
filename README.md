@@ -1,22 +1,28 @@
-# MorseCode | Minimalist Input Tool
+# MorseCode v2 | Tactile Input Tool
 
-A lightweight, offline-ready single-page web app for Morse code input and translation.
+A production-ready, ultra-lightweight Morse code input and translation app.
 
-## Features
-- **Red Pad**: Tactile Morse input button.
-- **Short Press (<200ms)**: Adds `•` (dot).
-- **Long Press (>200ms)**: Adds `-` (dash).
-- **Pause (>500ms)**: Automatically adds a space between characters.
-- **Translate (↔)**: Hold the double arrow button to peek at the English translation.
-- **Alphabet Help**: Click `?` to see the full Morse alphabet (A-Z, 0-9).
-- **Responsive**: Mobile-first design that works seamlessly on any screen size.
-- **Offline Ready**: No external libraries or fonts required.
+## ✨ New in v2
+- **Advanced Timing**: Support for letter separators (500ms) and word separators (1200ms).
+- **Tactile Feedback**: Subtle beep sound via Web Audio API and vibration support.
+- **Improved UX**: The guide is now directly accessible from the text area.
+- **Robust Translation**: Hold the ↔ button to translate entire sentences (supports A-Z, 0-9, and spaces).
+- **Responsive v2**: Better support for various viewports using `min()`, `clamp()`, and `dvh`.
 
-## Deployment to GitHub Pages
-1. Push these files (`index.html`, `style.css`, `script.js`) to a GitHub repository.
-2. Go to **Settings > Pages**.
-3. Select the branch (usually `main`) and folder (`/root`).
-4. Your app will be live at `https://your-username.github.io/your-repo-name/`.
+## 🕹️ Controls
+- **🔴 Red Pad**: 
+    - **Tap**: Dot (`•`)
+    - **Hold (>200ms)**: Dash (`-`)
+    - **Pause (500ms)**: Character Gap
+    - **Pause (1200ms)**: Word Gap (` / `)
+- **Book (📘)**: Opens the Morse reference guide.
+- **↔ (Hold)**: Peek at the English translation.
+- **📋 Copy**: Copies current content to clipboard.
+
+## 🚀 Deployment
+This app is ready for **GitHub Pages**:
+1. Push `index.html`, `style.css`, and `script.js` to a GitHub repository.
+2. Enable Pages in **Settings > Pages > Branch: main**.
 
 ## License
 MIT

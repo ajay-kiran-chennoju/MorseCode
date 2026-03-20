@@ -19,6 +19,15 @@ const helpModal = document.getElementById('help-modal');
 const closeModal = document.querySelector('.close-modal');
 const alphabetGrid = document.getElementById('alphabet-grid');
 
+// New Modal Elements
+const decodeModalBtn = document.getElementById('decode-modal-btn');
+const decodeModal = document.getElementById('decode-modal');
+const decodeInput = document.getElementById('decode-input');
+const decodeResult = document.getElementById('decode-result');
+const runDecodeBtn = document.getElementById('run-decode');
+const trojanContainer = document.getElementById('trojan-container');
+const closeDecode = document.getElementById('close-decode');
+
 // State
 let pressStartTime = 0;
 let spaceTimer = null;
@@ -197,10 +206,50 @@ closeModal.addEventListener('click', () => {
   setTimeout(() => helpModal.style.display = 'none', 300);
 });
 
+// Decode Modal
+decodeModalBtn.addEventListener('click', () => {
+  decodeModal.style.display = 'block';
+  setTimeout(() => decodeModal.classList.add('show'), 10);
+});
+
+closeDecode.addEventListener('click', () => {
+  decodeModal.classList.remove('show');
+  setTimeout(() => {
+    decodeModal.style.display = 'none';
+    // Reset state
+    decodeResult.innerText = "";
+    trojanContainer.classList.add('hidden');
+    decodeInput.value = "";
+  }, 300);
+});
+
+runDecodeBtn.addEventListener('click', () => {
+  const input = decodeInput.value.trim();
+  if (!input) return;
+
+  const result = translateMorse(input);
+  decodeResult.innerText = result;
+
+  if (result.includes('?')) {
+    trojanContainer.classList.remove('hidden');
+  } else {
+    trojanContainer.classList.add('hidden');
+  }
+});
+
 window.addEventListener('click', (e) => {
   if (e.target === helpModal) {
     helpModal.classList.remove('show');
     setTimeout(() => helpModal.style.display = 'none', 300);
+  }
+  if (e.target === decodeModal) {
+    decodeModal.classList.remove('show');
+    setTimeout(() => {
+      decodeModal.style.display = 'none';
+      decodeResult.innerText = "";
+      trojanContainer.classList.add('hidden');
+      decodeInput.value = "";
+    }, 300);
   }
 });
 

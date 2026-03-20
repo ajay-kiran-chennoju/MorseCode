@@ -56,7 +56,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 220px; /* Ensure space for button */
+  min-height: 220px;
+  /* Ensure space for button */
 }
 
 .bottom-section {
@@ -65,6 +66,13 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   gap: 1rem;
+}
+
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 /* Header & Text Area */
@@ -140,7 +148,7 @@ button {
   border: none;
   position: relative;
   cursor: pointer;
-  box-shadow: 
+  box-shadow:
     0 8px 16px rgba(239, 68, 68, 0.4),
     0 12px 24px rgba(0, 0, 0, 0.1);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -156,7 +164,7 @@ button {
 .morse-button:active {
   transform: scale(0.92);
   background: var(--secondary-red);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(239, 68, 68, 0.3),
     0 6px 12px rgba(0, 0, 0, 0.1);
 }
@@ -204,6 +212,67 @@ button {
   white-space: pre;
 }
 
+.modal-textarea {
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  outline: none;
+  background: #f7fafc;
+}
+
+.result-display {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  min-height: 2rem;
+}
+
+.trojan-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--primary-red);
+  text-align: center;
+}
+
+.trojan-horse-svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.decode-action-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary-red);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--btn-transition);
+}
+
+.decode-action-btn:active {
+  background-color: var(--secondary-red);
+  transform: scale(0.98);
+}
+
+.hidden {
+  display: none !important;
+}
+
 /* Modal */
 .modal {
   display: none;
@@ -221,9 +290,8 @@ button {
 .modal-content {
   background: var(--card-bg);
   margin: 5% auto;
-  padding: 2.5rem;
-  width: 90%;
-  max-width: 500px;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  width: min(90%, 500px);
   border-radius: 1.5rem;
   box-shadow: var(--shadow-lg);
   position: relative;
@@ -281,13 +349,25 @@ button {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal.show .modal-content {
@@ -299,10 +379,12 @@ button {
   .app-container {
     padding-top: 8px;
   }
+
   #output {
     min-height: 80px;
     padding: 1rem;
   }
+
   .center-section {
     min-height: 160px;
   }

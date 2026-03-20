@@ -112,8 +112,8 @@ function handlePressEnd(e) {
 // --- Translation ---
 
 function translateMorse(morseText) {
-  // Split into words by 4 spaces
-  const words = morseText.trim().split('    ');
+  // Split into words by 2 spaces
+  const words = morseText.trim().split('  ');
 
   return words.map(word => {
     // Split each word into characters by single space

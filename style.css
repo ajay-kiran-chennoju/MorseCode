@@ -187,6 +187,22 @@ button {
   box-shadow: var(--shadow-lg);
 }
 
+/* Legend */
+.legend {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  opacity: 0.3;
+  line-height: 1.4;
+  pointer-events: none; /* Don't block clicks */
+}
+
+.legend-item {
+  white-space: pre; /* Essential for showing multiple spaces */
+}
+
 /* Modal */
 .modal {
   display: none;

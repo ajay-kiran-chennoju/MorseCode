@@ -24,9 +24,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
-  overflow: hidden; /* Prevent scrolling for SPA feel */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,7 +34,7 @@ body {
 .app-container {
   width: 100%;
   max-width: 600px;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: var(--padding);
@@ -125,6 +124,10 @@ button {
 .morse-button {
   width: 180px;
   height: 180px;
+  max-width: 40vw;
+  max-height: 40vw;
+  min-width: 120px;
+  min-height: 120px;
   border-radius: 50%;
   background: var(--primary-red);
   border: none;
@@ -133,7 +136,7 @@ button {
   box-shadow: 
     0 8px 16px rgba(239, 68, 68, 0.4),
     0 12px 24px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: var(--btn-transition);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -254,6 +257,22 @@ button {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+}
+
+@media (max-height: 600px) {
+  .top-section {
+    margin-top: 0.5rem;
+  }
+  #output {
+    min-height: 80px;
+  }
+  .morse-button {
+    width: 140px;
+    height: 140px;
+  }
+  .legend, .help-toggle {
+    bottom: 1rem;
+  }
 }
 
 @media (min-width: 480px) {

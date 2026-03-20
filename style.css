@@ -17,36 +17,57 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
+  /* Viewport Height Fix */
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100vw;
   display: flex;
   justify-content: center;
-  align-items: center;
+  overflow-x: hidden;
 }
 
 .app-container {
   width: 100%;
   max-width: 600px;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: var(--padding);
+  /* Safe Area & Padding */
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
   position: relative;
 }
 
-/* Header & Text Area */
+/* 3-Section Layout Structure */
+
 .top-section {
   flex: 0 0 auto;
-  margin-top: 1rem;
 }
 
+.center-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px; /* Ensure space for button */
+}
+
+.bottom-section {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+/* Header & Text Area */
 .text-display-wrapper {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -63,11 +84,13 @@ body {
   resize: none;
   padding: 1.5rem;
   font-family: "Courier New", Courier, monospace;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   line-height: 1.5;
   background: transparent;
   color: var(--accent-color);
   outline: none;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .action-bar {
@@ -97,10 +120,6 @@ body {
   transform: scale(0.95);
 }
 
-.action-bar button:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
 .action-bar button.holding {
   background: #edf2f7;
   color: var(--primary-red);
@@ -112,22 +131,10 @@ button {
   -webkit-user-select: none;
 }
 
-/* Morse Pad */
-.center-section {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
+/* Morse Pad - Responsive Scaling */
 .morse-button {
-  width: 180px;
-  height: 180px;
-  max-width: 40vw;
-  max-height: 40vw;
-  min-width: 120px;
-  min-height: 120px;
+  width: min(60vw, 200px);
+  height: min(60vw, 200px);
   border-radius: 50%;
   background: var(--primary-red);
   border: none;
@@ -136,14 +143,13 @@ button {
   box-shadow: 
     0 8px 16px rgba(239, 68, 68, 0.4),
     0 12px 24px rgba(0, 0, 0, 0.1);
-  transition: var(--btn-transition);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .morse-button:hover {
-  transform: translateY(-2px);
   background: #f05252;
 }
 
@@ -165,9 +171,6 @@ button {
 
 /* Help Toggle */
 .help-toggle {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -177,12 +180,10 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
-  font-weight: bold;
   color: var(--accent-color);
   cursor: pointer;
   transition: var(--btn-transition);
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 .help-toggle:hover {
@@ -192,19 +193,15 @@ button {
 
 /* Legend */
 .legend {
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
   font-size: 0.72rem;
   color: #000;
   opacity: 0.25;
   line-height: 1.4;
   pointer-events: none;
-  z-index: 5;
 }
 
 .legend-item {
-  white-space: pre; /* Essential for showing multiple spaces */
+  white-space: pre;
 }
 
 /* Modal */
@@ -256,23 +253,7 @@ button {
 .morse-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-@media (max-height: 600px) {
-  .top-section {
-    margin-top: 0.5rem;
-  }
-  #output {
-    min-height: 80px;
-  }
-  .morse-button {
-    width: 140px;
-    height: 140px;
-  }
-  .legend, .help-toggle {
-    bottom: 1rem;
-  }
+  gap: 1rem;
 }
 
 @media (min-width: 480px) {
@@ -285,7 +266,7 @@ button {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   background: #f7fafc;
   border-radius: 0.75rem;
   font-family: "Courier New", Courier, monospace;
@@ -293,12 +274,10 @@ button {
 
 .morse-key {
   font-weight: bold;
-  color: var(--text-color);
 }
 
 .morse-val {
   color: var(--accent-color);
-  letter-spacing: 2px;
 }
 
 @keyframes fadeIn {
@@ -313,4 +292,18 @@ button {
 
 .modal.show .modal-content {
   animation: scaleUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* Responsive Overrides for Short Screens */
+@media (max-height: 600px) {
+  .app-container {
+    padding-top: 8px;
+  }
+  #output {
+    min-height: 80px;
+    padding: 1rem;
+  }
+  .center-section {
+    min-height: 160px;
+  }
 }

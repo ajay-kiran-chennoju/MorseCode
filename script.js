@@ -1,11 +1,11 @@
 const MORSE_MAP = {
-  "•-": "A", "-...": "B", "-.-.": "C", "-..": "D", "•": "E", "..-.": "F",
+  ".-": "A", "-...": "B", "-.-.": "C", "-..": "D", ".": "E", "..-.": "F",
   "--.": "G", "....": "H", "..": "I", ".---": "J", "-.-": "K", ".-..": "L",
   "--": "M", "-.": "N", "---": "O", ".--.": "P", "--.-": "Q", ".-.": "R",
   "...": "S", "-": "T", "..-": "U", "...-": "V", ".--": "W", "-..-": "X",
-  "-.--": "Y", "--..": "Z", "•----": "1", "••---": "2", "•••--": "3",
-  "••••-": "4", "•••••": "5", "-••••": "6", "--•••": "7", "---••": "8",
-  "----•": "9", "-----": "0"
+  "-.--": "Y", "--..": "Z", ".----": "1", "..---": "2", "...--": "3",
+  "....-": "4", ".....": "5", "-....": "6", "--...": "7", "---..": "8",
+  "----.": "9", "-----": "0"
 };
 
 // Elements
@@ -38,7 +38,7 @@ function handlePressStart(e) {
   if (e) e.preventDefault();
   pressStartTime = Date.now();
   if (spaceTimer) clearTimeout(spaceTimer);
-  
+
   // Visual & Haptic
   morsePad.classList.add('active');
   if (navigator.vibrate) navigator.vibrate(20);
@@ -47,20 +47,28 @@ function handlePressStart(e) {
 function handlePressEnd(e) {
   if (e) e.preventDefault();
   const duration = Date.now() - pressStartTime;
-  
+
   if (duration < 200) {
-    addMorse('•');
+    addMorse('.');
   } else {
     addMorse('-');
   }
-  
+
   morsePad.classList.remove('active');
   lastReleaseTime = Date.now();
-  
+
   // Set timer to add space after 500ms of inactivity
   spaceTimer = setTimeout(() => {
     addMorse(' ');
   }, 500);
+
+  wordTimer = setTimeout(() => {
+    // Replace last space with a word separator
+    if (output.value.endsWith(' ')) {
+      output.value = output.value.slice(0, -1) + '    ';
+      originalMorse = output.value;
+    }
+  }, 1200);
 }
 
 // --- Translation ---
@@ -72,7 +80,7 @@ function translateMorse(morseText) {
     .split(/\s+/)
     .map(symbol => {
       // Normalize dots
-      const normalized = symbol.replace(/\./g, '•');
+      const normalized = symbol.replace(/\./g, '.');
       return MORSE_MAP[normalized] || '?';
     })
     .join('');

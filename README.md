@@ -4,7 +4,7 @@ A lightweight, offline-ready single-page web app for Morse code input and transl
 
 ## Features
 - **Red Pad**: Tactile Morse input button.
-- **Short Press (<200ms)**: Adds `•` (dot).
+- **Short Press (<200ms)**: Adds `.` (dot).
 - **Long Press (>200ms)**: Adds `-` (dash).
 - **Pause (>500ms)**: Automatically adds a space between characters.
 - **Translate (↔)**: Hold the double arrow button to peek at the English translation.
